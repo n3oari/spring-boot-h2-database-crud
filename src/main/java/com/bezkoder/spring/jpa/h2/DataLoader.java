@@ -1,4 +1,4 @@
-package com.bezkoder.spring.jpa.h2;
+/*package com.bezkoder.spring.jpa.h2;
 
 import com.bezkoder.spring.jpa.h2.model.Author;
 import com.bezkoder.spring.jpa.h2.model.Category;
@@ -48,3 +48,4 @@ public class DataLoader implements CommandLineRunner {
 
     }
 }
+*/

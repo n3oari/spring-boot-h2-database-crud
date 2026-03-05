@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS authors (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    lastName VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     age INT
 );
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS tutorials (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    decription VARCHAR(255),
+    description VARCHAR(255),
     published BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     author_id INT NOT NULL,

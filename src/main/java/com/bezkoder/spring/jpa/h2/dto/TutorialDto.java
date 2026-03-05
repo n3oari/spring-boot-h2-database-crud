@@ -10,4 +10,6 @@ public class TutorialDto {
     private String title;
     private String description;
     private boolean published;
+    private Long authorId;
+    private Long categoryId;
 }
