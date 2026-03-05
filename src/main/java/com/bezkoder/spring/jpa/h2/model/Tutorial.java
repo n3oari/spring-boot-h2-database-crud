@@ -30,7 +30,15 @@ public class Tutorial {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
- 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false)
+    private Author author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
+
     public Tutorial(String title, String description, boolean published) {
         this.title = title;
         this.description = description;
