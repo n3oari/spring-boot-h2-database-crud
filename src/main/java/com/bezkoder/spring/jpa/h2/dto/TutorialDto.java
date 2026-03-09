@@ -7,9 +7,12 @@ import lombok.Data;
 @Data
 public class TutorialDto {
 
+    private int id;
     private String title;
     private String description;
     private boolean published;
     private Long authorId;
     private Long categoryId;
+
+
 }

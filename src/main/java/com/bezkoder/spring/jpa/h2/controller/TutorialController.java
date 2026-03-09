@@ -2,6 +2,8 @@ package com.bezkoder.spring.jpa.h2.controller;
 
 import java.util.List;
 import java.util.Optional;
+
+import com.bezkoder.spring.jpa.h2.dto.TutorialByAuthorDto;
 import com.bezkoder.spring.jpa.h2.dto.TutorialDto;
 import com.bezkoder.spring.jpa.h2.service.TutorialService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.bezkoder.spring.jpa.h2.model.Tutorial;
 
 
 @CrossOrigin(origins = "http://localhost:8081")
@@ -31,9 +32,9 @@ public class TutorialController {
 
 
     @GetMapping("/tutorials")
-    public ResponseEntity<List<Tutorial>> getAllTutorials(@RequestParam(required = false) String title) {
+    public ResponseEntity<List<TutorialDto>> getAllTutorials(@RequestParam(required = false) String title) {
         try {
-            List<Tutorial> tutorials = tutorialService.getTutorials(title);
+            List<TutorialDto> tutorials = tutorialService.getTutorials(title);
 
             if (tutorials.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -46,8 +47,8 @@ public class TutorialController {
     }
 
     @GetMapping("/tutorials/{id}")
-    public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
-        Optional<Tutorial> tutorialData = tutorialService.getTutorialById(id);
+    public ResponseEntity<TutorialDto> getTutorialById(@PathVariable("id") long id) {
+        Optional<TutorialDto> tutorialData = tutorialService.getTutorialById(id);
 
         if (tutorialData.isPresent()) {
             return new ResponseEntity<>(tutorialData.get(), HttpStatus.OK);
@@ -57,9 +58,9 @@ public class TutorialController {
     }
 
     @PostMapping("/tutorials")
-    public ResponseEntity<Tutorial> createTutorial(@RequestBody TutorialDto tutorialDto) {
+    public ResponseEntity<TutorialDto> createTutorial(@RequestBody TutorialDto tutorialDto) {
         try {
-            Tutorial _tutorial = tutorialService.createTutorial(tutorialDto);
+            TutorialDto _tutorial = tutorialService.createTutorial(tutorialDto);
             return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,8 +69,8 @@ public class TutorialController {
     }
 
     @PutMapping("/tutorials/{id}")
-    public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") long id, @RequestBody TutorialDto tutorialDto) {
-        Tutorial updatedTutorial = tutorialService.updateTutorial(id, tutorialDto);
+    public ResponseEntity<TutorialDto> updateTutorial(@PathVariable("id") long id, @RequestBody TutorialDto tutorialDto) {
+        TutorialDto updatedTutorial = tutorialService.updateTutorial(id, tutorialDto);
 
         if (updatedTutorial != null) {
             return new ResponseEntity<>(updatedTutorial, HttpStatus.OK);
@@ -101,9 +102,9 @@ public class TutorialController {
     }
 
     @GetMapping("/tutorials/published")
-    public ResponseEntity<List<Tutorial>> findByPublished() {
+    public ResponseEntity<List<TutorialDto>> findByPublished() {
         try {
-            List<Tutorial> tutorials = tutorialService.findByPublished();
+            List<TutorialDto> tutorials = tutorialService.findByPublished();
 
             if (tutorials.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -115,9 +116,9 @@ public class TutorialController {
     }
 
     @GetMapping("/tutorials/by-author/{authorId}")
-    public ResponseEntity<List<Tutorial>> findByAuthorId(@PathVariable Long authorId) {
+    public ResponseEntity<List<TutorialDto>> findByAuthorId(@PathVariable Long authorId) {
         try {
-            List<Tutorial> tutorials = tutorialService.getTutorialsByAuthor(authorId);
+            List<TutorialDto> tutorials = tutorialService.getTutorialsByAuthor(authorId);
 
             if (tutorials.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -130,9 +131,9 @@ public class TutorialController {
     }
 
     @GetMapping("/tutorials/by-category/{categoryId}")
-    public ResponseEntity<List<Tutorial>> findByCategoryId(@PathVariable Long categoryId) {
+    public ResponseEntity<List<TutorialDto>> findByCategoryId(@PathVariable Long categoryId) {
         try {
-            List<Tutorial> tutorials = tutorialService.getTutorialsByCategory(categoryId);
+            List<TutorialDto> tutorials = tutorialService.getTutorialsByCategory(categoryId);
 
             if (tutorials.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -144,4 +145,39 @@ public class TutorialController {
         }
     }
 
+    @GetMapping(value = "/tutorials", params = "search")
+    public ResponseEntity<List<TutorialDto>> searchTutorial(@RequestParam(required = false) String search) {
+        try {
+
+            List<TutorialDto> tutorials = tutorialService.searchTutorials(search);
+
+            if (tutorials.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(tutorials, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/tutorials/author")
+    public ResponseEntity<List<TutorialByAuthorDto>> getTutorialsByAuthor(@RequestParam String name) {
+        try {
+            List<TutorialByAuthorDto> tutorials = tutorialService.getTutorialsByAuthor(name);
+
+            if (tutorials.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(tutorials, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
+
+

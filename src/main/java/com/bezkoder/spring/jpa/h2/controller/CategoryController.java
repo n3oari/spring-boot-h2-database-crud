@@ -24,10 +24,10 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/categories")
-    public ResponseEntity<List<Category>> getAllCategories(@RequestParam(required = false) String name) {
+    public ResponseEntity<List<CategoryDto>> getAllCategories(@RequestParam(required = false) String name) {
 
         try {
-            List<Category> categories = categoryService.getCategories(name);
+            List<CategoryDto> categories = categoryService.getCategories(name);
 
             if (categories.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -40,8 +40,8 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable("id") long id) {
-        Optional<Category> category = categoryService.getCategoryById(id);
+    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable("id") long id) {
+        Optional<CategoryDto> category = categoryService.getCategoryById(id);
 
         if (category.isPresent()) {
             return new ResponseEntity<>(category.get(), HttpStatus.OK);
@@ -52,9 +52,9 @@ public class CategoryController {
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<Category> createCategory(@RequestBody CategoryDto categoryDto) {
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto categoryDto) {
         try {
-            Category _category = categoryService.saveCategory(categoryDto);
+            CategoryDto _category = categoryService.saveCategory(categoryDto);
             return new ResponseEntity<>(_category, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

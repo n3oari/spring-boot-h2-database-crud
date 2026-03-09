@@ -1,12 +1,15 @@
 package com.bezkoder.spring.jpa.h2.service;
 
+import com.bezkoder.spring.jpa.h2.dto.TutorialByAuthorDto;
 import com.bezkoder.spring.jpa.h2.dto.TutorialDto;
+import com.bezkoder.spring.jpa.h2.mappers.TutorialMapper;
 import com.bezkoder.spring.jpa.h2.model.Tutorial;
 import com.bezkoder.spring.jpa.h2.repository.AuthorRepository;
 import com.bezkoder.spring.jpa.h2.repository.CategoryRepository;
 import com.bezkoder.spring.jpa.h2.repository.TutorialRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -17,27 +20,34 @@ public class TutorialService {
     private final TutorialRepository tutorialRepository;
     private final AuthorRepository authorRepository;
     private final CategoryRepository categoryRepository;
+    private final TutorialMapper tutorialMapper;
 
-    public List<Tutorial> getTutorials(String title) {
-        if (title == null || title.isEmpty()) {
-            return tutorialRepository.findAll();
+
+    public List<TutorialDto> getTutorials(String search) {
+        List<Tutorial> tutorials;
+
+        if (search == null || search.isEmpty()) {
+            tutorials = tutorialRepository.findAll();
+        } else {
+            tutorials = tutorialRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search);
         }
-        return tutorialRepository.findByTitleContainingIgnoreCase(title);
+
+
+        return tutorials.stream()
+                .map(tutorialMapper::tutorialToTutorialDto)
+                .toList();
     }
 
-    public Optional<Tutorial> getTutorialById(Long id) {
-        return tutorialRepository.findById(id);
+    public Optional<TutorialDto> getTutorialById(Long id) {
+        return tutorialRepository.findById(id)
+                .map(tutorialMapper::tutorialToTutorialDto);
     }
 
-    public Tutorial createTutorial(TutorialDto tutorialDto) {
-        Tutorial tutorial = new Tutorial();
+    public TutorialDto createTutorial(TutorialDto tutorialDto) {
+        Tutorial tutorial = tutorialMapper.tutorialDtoToTutorial(tutorialDto);
+        Tutorial savedTutorial = tutorialRepository.save(tutorial);
+        return tutorialMapper.tutorialToTutorialDto(savedTutorial);
 
-        tutorial.setTitle(tutorialDto.getTitle());
-        tutorial.setDescription(tutorialDto.getDescription());
-        tutorial.setPublished(tutorialDto.isPublished());
-        tutorial.setAuthor(authorRepository.getReferenceById(tutorialDto.getAuthorId()));
-        tutorial.setCategory(categoryRepository.getReferenceById(tutorialDto.getCategoryId()));
-        return tutorialRepository.save(tutorial);
     }
 
     public void deleteAllTutorials() {
@@ -48,31 +58,55 @@ public class TutorialService {
         tutorialRepository.deleteById(id);
     }
 
-    public List<Tutorial> findByPublished() {
-        return tutorialRepository.findByPublished(true);
+    public List<TutorialDto> findByPublished() {
+
+        List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
+        return tutorials.stream()
+                .map(tutorialMapper::tutorialToTutorialDto)
+                .toList();
     }
 
-    public List<Tutorial> getTutorialsByAuthor(Long authorId) {
-        return tutorialRepository.findByAuthorId(authorId);
+    public List<TutorialDto> getTutorialsByAuthor(Long authorId) {
+        List<Tutorial> tutorials = tutorialRepository.findByAuthorId(authorId);
+        return tutorials.stream()
+                .map(tutorialMapper::tutorialToTutorialDto)
+                .toList();
     }
 
-    public List<Tutorial> getTutorialsByCategory(Long categoryId)
-        {
-        return tutorialRepository.findByCategoryId(categoryId);
+    public List<TutorialDto> getTutorialsByCategory(Long categoryId) {
+        List<Tutorial> tutorials = tutorialRepository.findByCategoryId(categoryId);
+        return tutorials.stream()
+                .map(tutorialMapper::tutorialToTutorialDto)
+                .toList();
     }
 
-    public Tutorial updateTutorial(Long id, TutorialDto tutorialDto) {
+    public TutorialDto updateTutorial(Long id, TutorialDto tutorialDto) {
         Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
         if (tutorialData.isPresent()) {
             Tutorial _tutorial = tutorialData.get();
-            _tutorial.setTitle(tutorialDto.getTitle());
-            _tutorial.setDescription(tutorialDto.getDescription());
-            _tutorial.setPublished(tutorialDto.isPublished());
-            return tutorialRepository.save(_tutorial);
+            tutorialMapper.updateTutorialFromDto(tutorialDto, _tutorial);
+            return tutorialMapper.tutorialToTutorialDto(tutorialRepository.save(_tutorial));
         } else {
             return null;
         }
+    }
+
+
+    public List<TutorialDto> searchTutorials(String search) {
+        List<Tutorial> tutorials = tutorialRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search);
+
+        return tutorials.stream()
+                .map(tutorialMapper::tutorialToTutorialDto)
+                .toList();
+    }
+
+    public List<TutorialByAuthorDto> getTutorialsByAuthor(String name) {
+        List<Tutorial> tutorials = tutorialRepository.findByAuthorName(name);
+
+        return tutorials.stream()
+                .map(tutorialMapper::tutorialToTutorialByAuthorDto)
+                .toList();
     }
 
 

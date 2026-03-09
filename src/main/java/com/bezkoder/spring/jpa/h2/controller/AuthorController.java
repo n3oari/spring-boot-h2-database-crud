@@ -2,7 +2,6 @@ package com.bezkoder.spring.jpa.h2.controller;
 
 
 import com.bezkoder.spring.jpa.h2.dto.AuthorDto;
-import com.bezkoder.spring.jpa.h2.model.Author;
 import com.bezkoder.spring.jpa.h2.service.AuthorService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,9 +21,9 @@ public class AuthorController {
     private AuthorService authorService;
 
     @GetMapping("/authors")
-    public ResponseEntity<List<Author>> getAllAuthors(@RequestParam(required = false) String name) {
+    public ResponseEntity<List<AuthorDto>> getAllAuthors(@RequestParam(required = false) String name) {
         try {
-            List<Author> authors = authorService.getAuthors(name);
+            List<AuthorDto> authors = authorService.getAuthors(name);
 
             if (authors.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -39,8 +38,8 @@ public class AuthorController {
     }
 
     @GetMapping("/authors/{id}")
-    public ResponseEntity<Author> getAuthorById(@PathVariable("id") long id) {
-        Optional<Author> author = authorService.getAuthorById(id);
+    public ResponseEntity<AuthorDto> getAuthorById(@PathVariable("id") long id) {
+        Optional<AuthorDto> author = authorService.getAuthorById(id);
 
         if (author.isPresent()) {
             return new ResponseEntity<>(author.get(), HttpStatus.OK);
@@ -50,9 +49,9 @@ public class AuthorController {
     }
 
     @PostMapping("/authors")
-    public ResponseEntity<Author> createAuthor(@RequestBody AuthorDto authorDto) {
+    public ResponseEntity<AuthorDto> createAuthor(@RequestBody AuthorDto authorDto) {
         try {
-            Author _author = authorService.saveAuthor(authorDto);
+            AuthorDto _author = authorService.saveAuthor(authorDto);
 
             return new ResponseEntity<>(_author, HttpStatus.CREATED);
         } catch (Exception e) {

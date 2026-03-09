@@ -1,6 +1,7 @@
 package com.bezkoder.spring.jpa.h2.service;
 
 import com.bezkoder.spring.jpa.h2.dto.CategoryDto;
+import com.bezkoder.spring.jpa.h2.mappers.CategoryMapper;
 import com.bezkoder.spring.jpa.h2.model.Category;
 import com.bezkoder.spring.jpa.h2.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
@@ -14,25 +15,27 @@ import java.util.Optional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
-    public List<Category> getCategories(String name) {
-        if (name == null || name.isEmpty()) {
-            return categoryRepository.findAll();
-        }
-        return categoryRepository.findByNameContainingIgnoreCase(name);
+    public List<CategoryDto> getCategories(String name) {
+        List<Category> categories = (name == null || name.isEmpty())
+                ? categoryRepository.findAll()
+                : categoryRepository.findByNameContainingIgnoreCase(name);
+
+        return categories.stream()
+                .map(categoryMapper::categoryToCategoryDto)
+                .toList();
     }
 
-    public Optional<Category> getCategoryById(Long id) {
-        return categoryRepository.findById(id);
+    public Optional<CategoryDto> getCategoryById(Long id) {
+        return categoryRepository.findById(id)
+                .map(categoryMapper::categoryToCategoryDto);
     }
 
-    public Category saveCategory(CategoryDto categoryDto) {
-        Category category = new Category();
-
-        category.setName(categoryDto.getName());
-        category.setDescription(categoryDto.getDescription());
-
-        return categoryRepository.save(category);
+    public CategoryDto saveCategory(CategoryDto categoryDto) {
+        Category category = categoryMapper.categoryDtoToCategory(categoryDto);
+        Category savedCategory = categoryRepository.save(category);
+        return categoryMapper.categoryToCategoryDto(savedCategory);
     }
 
 }
