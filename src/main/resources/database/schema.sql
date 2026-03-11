@@ -25,5 +25,12 @@ CREATE TABLE IF NOT EXISTS tutorials (
     CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
-
+CREATE TABLE IF NOT EXISTS comments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    content VARCHAR(255) NOT NULL,
+    author_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tutorial_id INT NOT NULL,
+    CONSTRAINT fk_tutorial FOREIGN KEY (tutorial_id) REFERENCES tutorials(id)
+ );
 

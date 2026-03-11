@@ -1,7 +1,9 @@
 package com.bezkoder.spring.jpa.h2.mappers;
 
+import com.bezkoder.spring.jpa.h2.dto.CommentDto;
 import com.bezkoder.spring.jpa.h2.dto.TutorialByAuthorDto;
 import com.bezkoder.spring.jpa.h2.dto.TutorialDto;
+import com.bezkoder.spring.jpa.h2.model.Comment;
 import com.bezkoder.spring.jpa.h2.model.Tutorial;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -30,5 +32,10 @@ public interface TutorialMapper {
     @Mapping(source = "tutorial.category.name", target = "categoryName")
     TutorialByAuthorDto tutorialToTutorialByAuthorDto(Tutorial tutorial);
 
+    @Mapping(source = "tutorial.id", target = "tutorialId")
+    CommentDto commentToCommentDto(Comment comment);
+
+
 }
+
 

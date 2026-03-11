@@ -32,6 +32,7 @@ public class AuthorController {
             return new ResponseEntity<>(authors, HttpStatus.OK);
 
         } catch (Exception e) {
+
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 
         }

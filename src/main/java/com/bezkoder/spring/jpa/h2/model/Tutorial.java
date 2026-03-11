@@ -39,6 +39,8 @@ public class Tutorial {
     private Category category;
 
 
+
+
     public Tutorial(String title, String description, boolean published) {
         this.title = title;
         this.description = description;

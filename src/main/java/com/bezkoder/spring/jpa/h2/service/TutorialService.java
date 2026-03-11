@@ -8,6 +8,10 @@ import com.bezkoder.spring.jpa.h2.repository.AuthorRepository;
 import com.bezkoder.spring.jpa.h2.repository.CategoryRepository;
 import com.bezkoder.spring.jpa.h2.repository.TutorialRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -100,7 +104,7 @@ public class TutorialService {
                 .map(tutorialMapper::tutorialToTutorialDto)
                 .toList();
     }
-
+/*
     public List<TutorialByAuthorDto> getTutorialsByAuthor(String name) {
         List<Tutorial> tutorials = tutorialRepository.findByAuthorName(name);
 
@@ -108,6 +112,13 @@ public class TutorialService {
                 .map(tutorialMapper::tutorialToTutorialByAuthorDto)
                 .toList();
     }
+*/
 
-
+    public Page<TutorialDto> filterTutorialPaginated(String authorName, PageRequest pageable) {
+        return tutorialRepository.findByAuthorName(authorName, pageable)
+                .map(tutorial -> {
+                    TutorialDto tutorialDto = tutorialMapper.tutorialToTutorialDto(tutorial);
+                    return tutorialDto;
+                });
+    }
 }

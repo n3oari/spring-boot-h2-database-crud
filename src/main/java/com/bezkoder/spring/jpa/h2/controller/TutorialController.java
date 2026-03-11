@@ -1,12 +1,16 @@
 package com.bezkoder.spring.jpa.h2.controller;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
+import com.bezkoder.spring.jpa.h2.dto.RequestFilterDto;
 import com.bezkoder.spring.jpa.h2.dto.TutorialByAuthorDto;
 import com.bezkoder.spring.jpa.h2.dto.TutorialDto;
 import com.bezkoder.spring.jpa.h2.service.TutorialService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -63,7 +67,6 @@ public class TutorialController {
             TutorialDto _tutorial = tutorialService.createTutorial(tutorialDto);
             return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -161,7 +164,7 @@ public class TutorialController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+/*
     @GetMapping("/tutorials/author")
     public ResponseEntity<List<TutorialByAuthorDto>> getTutorialsByAuthor(@RequestParam String name) {
         try {
@@ -177,6 +180,22 @@ public class TutorialController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+*/
+    @PostMapping("/tutorials/filter")
+    public ResponseEntity<Page<TutorialDto>> tutorials(
+            @RequestBody(required = false) RequestFilterDto filter) {
+        if (Objects.isNull(filter)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        int page = filter.getOffset() / filter.getLimit();
+        PageRequest pageRequest = PageRequest.of(page, filter.getLimit());
+
+        Page<TutorialDto> tutorials = tutorialService.filterTutorialPaginated(filter.getSearch(), pageRequest);
+
+        return new ResponseEntity<>(tutorials, HttpStatus.OK);
+    }
+
 
 }
 
