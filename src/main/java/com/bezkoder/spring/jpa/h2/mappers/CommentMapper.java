@@ -11,6 +11,7 @@ import org.mapstruct.NullValueMappingStrategy;
 public interface CommentMapper {
 
     @Mapping(source = "tutorial.id", target = "tutorialId")
+    @Mapping(source = "user.fullName", target = "authorName")
     CommentDto commentToCommentDto(Comment comment);
     Comment commentDtoToComment(CommentDto commentDto);
 

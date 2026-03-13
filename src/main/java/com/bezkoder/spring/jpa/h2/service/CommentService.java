@@ -2,15 +2,19 @@ package com.bezkoder.spring.jpa.h2.service;
 
 
 //import com.bezkoder.spring.jpa.h2.adapter.CommentAdapter;
+
 import com.bezkoder.spring.jpa.h2.dto.CommentDto;
 import com.bezkoder.spring.jpa.h2.dto.CommentFilterDto;
 import com.bezkoder.spring.jpa.h2.dto.CreateCommentDto;
 import com.bezkoder.spring.jpa.h2.mappers.CommentMapper;
 import com.bezkoder.spring.jpa.h2.model.Comment;
 import com.bezkoder.spring.jpa.h2.model.Tutorial;
+import com.bezkoder.spring.jpa.h2.model.Users;
 import com.bezkoder.spring.jpa.h2.repository.CommentRepository;
 import com.bezkoder.spring.jpa.h2.repository.TutorialRepository;
+import com.bezkoder.spring.jpa.h2.repository.UserRepository;
 import com.bezkoder.spring.jpa.h2.specifications.CommentSpecifications;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +35,8 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
     private final TutorialRepository tutorialRepository;
- //   private final CommentAdapter commentAdapter;
+    private final UserRepository userRepository;
+    //   private final CommentAdapter commentAdapter;
 
 
     public List<CommentDto> getComments() {
@@ -49,11 +54,14 @@ public class CommentService {
 
     public CommentDto createComment(Long tutorialId, CreateCommentDto createCommentDto) {
         Tutorial tutorial = tutorialRepository.findById(tutorialId)
-                .orElseThrow(() -> new RuntimeException("Tutorial not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Tutorial not found"));
+
+        Users user = userRepository.findById(createCommentDto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Comment comment = new Comment();
         comment.setContent(createCommentDto.getContent());
-        comment.setAuthorName(createCommentDto.getAuthorName());
+        comment.setUser(user);
         comment.setTutorial(tutorial);
         comment.setCreatedAt(LocalDateTime.now());
 

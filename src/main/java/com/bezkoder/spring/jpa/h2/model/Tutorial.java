@@ -37,9 +37,11 @@ public class Tutorial {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-
-
-
+/*
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private Users user;
+*/
 
     public Tutorial(String title, String description, boolean published) {
         this.title = title;

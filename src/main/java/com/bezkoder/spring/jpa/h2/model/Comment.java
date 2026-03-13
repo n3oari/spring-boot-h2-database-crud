@@ -10,7 +10,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "comments")
@@ -24,14 +23,16 @@ public class Comment {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "authorName")
-    private String authorName;
-
-
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "tutorial_id", nullable = false)
     private Tutorial tutorial;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private Users user;
+
+
 }

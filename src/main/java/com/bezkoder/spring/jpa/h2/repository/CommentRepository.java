@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
 
-    List<Comment> findByAuthorName(String authorName);
+    List<Comment> findByUserUsername(String username);
     List<Comment> findByTutorialId(Long tutorialId);
 
 }

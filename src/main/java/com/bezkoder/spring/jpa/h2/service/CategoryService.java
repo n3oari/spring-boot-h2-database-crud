@@ -20,7 +20,7 @@ public class CategoryService {
     public List<CategoryDto> getCategories(String name) {
         List<Category> categories = (name == null || name.isEmpty())
                 ? categoryRepository.findAll()
-                : categoryRepository.findByNameContainingIgnoreCase(name);
+                : categoryRepository.findByNameContainingIgnoreCase(name); // <-- Cambiado aquí
 
         return categories.stream()
                 .map(categoryMapper::categoryToCategoryDto)
