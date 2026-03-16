@@ -7,8 +7,7 @@ import com.bezkoder.spring.jpa.h2.model.Comment;
 import com.bezkoder.spring.jpa.h2.service.CommentService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -106,6 +105,35 @@ public class CommentController {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/import/comments")
+    public ResponseEntity<String> importComments() {
+        return null;
+    }
+
+    @GetMapping("/tutorials/{id}/comments/export-csv")
+    public ResponseEntity<byte[]> exportCommentsToCsv(@PathVariable Long id) {
+
+        String csvData = commentService.exportarComentariosCsv(id);
+        byte[] out = csvData.getBytes();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv"));
+
+        headers.setContentDisposition(
+                ContentDisposition.attachment()
+                        .filename("comentarios_tutorial_" + id + ".csv")
+                        .build()
+        );
+
+        return new ResponseEntity<>(out, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/sync/external")
+    public String sync() {
+        commentService.guardarComentariosDeApi();
+        return "Sincronización completada con éxito.";
     }
 
 }

@@ -3,16 +3,17 @@ package com.bezkoder.spring.jpa.h2.service;
 
 //import com.bezkoder.spring.jpa.h2.adapter.CommentAdapter;
 
+import com.bezkoder.spring.jpa.h2.adapter.CommentAdapter;
 import com.bezkoder.spring.jpa.h2.dto.CommentDto;
 import com.bezkoder.spring.jpa.h2.dto.CommentFilterDto;
 import com.bezkoder.spring.jpa.h2.dto.CreateCommentDto;
+import com.bezkoder.spring.jpa.h2.dto.UserCommentDto;
 import com.bezkoder.spring.jpa.h2.mappers.CommentMapper;
+import com.bezkoder.spring.jpa.h2.model.Author;
 import com.bezkoder.spring.jpa.h2.model.Comment;
 import com.bezkoder.spring.jpa.h2.model.Tutorial;
 import com.bezkoder.spring.jpa.h2.model.Users;
-import com.bezkoder.spring.jpa.h2.repository.CommentRepository;
-import com.bezkoder.spring.jpa.h2.repository.TutorialRepository;
-import com.bezkoder.spring.jpa.h2.repository.UserRepository;
+import com.bezkoder.spring.jpa.h2.repository.*;
 import com.bezkoder.spring.jpa.h2.specifications.CommentSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -22,11 +23,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.bezkoder.spring.jpa.h2.model.Category;
+import com.bezkoder.spring.jpa.h2.repository.CategoryRepository;
 
 @Service
 @AllArgsConstructor
@@ -36,8 +41,9 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final TutorialRepository tutorialRepository;
     private final UserRepository userRepository;
-    //   private final CommentAdapter commentAdapter;
-
+    private final CommentAdapter commentAdapter;
+    private final AuthorRepository authorRepository;
+    private final CategoryRepository categoryRepository;
 
     public List<CommentDto> getComments() {
         return commentRepository.findAll()
@@ -45,7 +51,6 @@ public class CommentService {
                 .map(commentMapper::commentToCommentDto)
                 .collect(Collectors.toList());
     }
-
 
     public Optional<CommentDto> getCommentById(Long id) {
         return commentRepository.findById(id)
@@ -94,11 +99,95 @@ public class CommentService {
 
         return commentRepository.findAll(spec, pageable);
     }
-/*
-    public List<CommentDto> fetchLatestComments() {
-        CommentDto[] response = commentAdapter.getComments();
-        return List.of(response);
 
+
+    @Transactional
+    public void guardarComentariosDeApi() {
+        List<UserCommentDto> comentariosApi = commentAdapter.obtenerComentariosMapeados();
+
+        if (comentariosApi.isEmpty()) {
+            System.out.println("No se encontraron comentarios en la API.");
+            return;
+        }
+
+
+        Category categoriaSistema = categoryRepository.findAll().stream().findFirst()
+                .orElseGet(() -> {
+                    Category c = new Category();
+                    c.setName("General API");
+                    return categoryRepository.save(c);
+                });
+
+        Author autorSistema = authorRepository.findAll().stream().findFirst()
+                .orElseGet(() -> {
+                    Author a = new Author();
+                    a.setName("Sistema");
+                    a.setLastName("Automático");
+                    a.setEmail("admin@api.com");
+                    a.setAge(99);
+                    return authorRepository.save(a);
+                });
+
+
+        Tutorial tutorialGenerico = tutorialRepository.findAll().stream().findFirst()
+                .orElseGet(() -> {
+                    Tutorial t = new Tutorial();
+                    t.setTitle("API Import");
+                    t.setDescription("Tutorial contenedor para comentarios de DummyJSON");
+                    t.setPublished(true);
+                    t.setAuthor(autorSistema);
+                    t.setCategory(categoriaSistema);
+                    return tutorialRepository.save(t);
+                });
+
+
+        int procesados = 0;
+        for (UserCommentDto dto : comentariosApi) {
+            try {
+
+                Users user = userRepository.findByUsername(dto.getUser().getUsername())
+                        .orElseGet(() -> {
+                            Users newUser = new Users();
+                            newUser.setUsername(dto.getUser().getUsername());
+                            newUser.setFullName(dto.getUser().getFullName());
+                            return userRepository.save(newUser);
+                        });
+
+
+                Comment commentEntity = new Comment();
+                commentEntity.setContent(dto.getBody());
+                commentEntity.setUser(user);
+                commentEntity.setTutorial(tutorialGenerico);
+                commentEntity.setCreatedAt(LocalDateTime.now());
+
+
+                commentRepository.save(commentEntity);
+                procesados++;
+
+            } catch (Exception e) {
+                System.err.println("Error procesando comentario " + dto.getId() + ": " + e.getMessage());
+            }
+        }
+
+        System.out.println("Sincronización finalizada: " + procesados + " comentarios guardados.");
     }
-*/
+    public String exportarComentariosCsv(Long tutorialId) {
+        List<Comment> comentarios = commentRepository.findByTutorialId(tutorialId);
+        StringBuilder csv = new StringBuilder();
+
+        csv.append("ID;Usuario;Contenido;Fecha\n");
+
+        for (Comment c : comentarios) {
+            csv.append(c.getId()).append(";")
+                    .append(c.getUser().getUsername()).append(";")
+                    .append(c.getContent().replace("\n", " ")).append(";")
+                    .append(c.getCreatedAt()).append("\n");
+        }
+
+        return csv.toString();
+    }
+
+
 }
+
+

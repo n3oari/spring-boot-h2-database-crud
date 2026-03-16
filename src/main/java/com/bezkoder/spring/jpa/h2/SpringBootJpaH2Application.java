@@ -16,7 +16,8 @@ public class SpringBootJpaH2Application {
 	CommandLineRunner run(CommentAdapter commentAdapter) {
 		return args -> {
 			System.out.println("--- Probando Adaptador de Comentarios ---");
-			commentAdapter.probarApi();
+//			commentAdapter.probarApi();
+			commentAdapter.obtenerComentariosMapeados();
 		};
 	}
 }

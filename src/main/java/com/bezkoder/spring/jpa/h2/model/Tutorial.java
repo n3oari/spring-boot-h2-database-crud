@@ -31,7 +31,7 @@ public class Tutorial {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
+    @JoinColumn(name = "author_id")
     private Author author;
 
     @ManyToOne

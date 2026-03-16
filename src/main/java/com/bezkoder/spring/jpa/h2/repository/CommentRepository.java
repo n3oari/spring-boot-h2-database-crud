@@ -12,4 +12,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
     List<Comment> findByUserUsername(String username);
     List<Comment> findByTutorialId(Long tutorialId);
 
+
 }

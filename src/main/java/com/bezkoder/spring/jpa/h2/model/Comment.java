@@ -27,7 +27,7 @@ public class Comment {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "tutorial_id", nullable = false)
+    @JoinColumn(name = "tutorial_id", nullable = true)
     private Tutorial tutorial;
 
     @ManyToOne
